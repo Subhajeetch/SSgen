@@ -16,7 +16,7 @@ export function NavMain({
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuButton tooltip={item.title} key={item.title} className="h-[40px]">
-            < Link className="group/collapsible flex gap-2 items-center justify-center" href={item.url} key={item.title} >
+            < Link className="group/collapsible flex gap-2 items-center w-full h-full group-data-[collapsible=icon]:w-fit" href={item.url} key={item.title} >
               {item.icon && <item.icon size={22} className="group-data-[collapsible=icon]:h-[16px] group-data-[collapsible=icon]:w-[16px]" />}
               < span className="text-[16px] font-semibold" > {item.title}</span>
             </Link>

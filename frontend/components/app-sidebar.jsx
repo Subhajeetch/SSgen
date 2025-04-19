@@ -50,22 +50,22 @@ const data = {
   navMain: [
     {
       title: "Instagram",
-      url: "#",
+      url: "/generate/instagram",
       icon: Instagram,
     },
     {
       title: "Whatsapp",
-      url: "#",
+      url: "/generate/whatsapp",
       icon: Whatsapp,
     },
     {
       title: "Facebook",
-      url: "#",
+      url: "/generate/facebook",
       icon: Facebook,
     },
     {
       title: "Snapchat",
-      url: "#",
+      url: "/generate/snapchat",
       icon: Snapchat,
     },
   ],
@@ -105,7 +105,7 @@ export function AppSidebar({
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuButton tooltip="Home" className="h-[48px]">
-              <Link className="group/collapsible flex gap-2 items-center justify-center" href="/home">
+              <Link className="group/collapsible flex gap-2 items-center w-full h-full group-data-[collapsible=icon]:w-fit" href="/home">
                 <Home size={28} className="group-data-[collapsible=icon]:h-[16px] group-data-[collapsible=icon]:w-[16px]" /> <span className="text-[18px] font-semibold">Home</span>
               </Link>
             </SidebarMenuButton>
