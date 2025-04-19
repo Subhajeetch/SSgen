@@ -18,7 +18,7 @@ import { Whatsapp, Snapchat } from "@/sections/uni/icons"
 import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/sidebarHeader"
+import { SidebarTop } from "@/components/sidebarHeader"
 import {
   Sidebar,
   SidebarContent,
@@ -98,7 +98,7 @@ export function AppSidebar({
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <div className="flex items-center rounded-md hover:bg-muted">
-          <TeamSwitcher brand={data.brand} />
+          <SidebarTop brand={data.brand} />
           <div className="group-data-[collapsible=icon]:hidden mr-2">
             <ModeToggle />
           </div>
