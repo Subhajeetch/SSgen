@@ -1,11 +1,9 @@
 "use client"
 
+import { usePathname } from "next/navigation";
 import * as React from "react"
 import {
-  AudioWaveform,
-  Command,
   Frame,
-  GalleryVerticalEnd,
   Map,
   PieChart,
   Instagram,
@@ -91,6 +89,11 @@ const data = {
 export function AppSidebar({
   ...props
 }) {
+  const currentPath = usePathname();
+
+  // check if the url is same as the url on the nav manu so we can highlight it
+  const isActive = path => currentPath === path;
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -104,7 +107,8 @@ export function AppSidebar({
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            <SidebarMenuButton tooltip="Home" className="h-[48px]">
+            <SidebarMenuButton tooltip="Home" className={`h-[48px] ${isActive("/home") ? "bg-muted" : ""
+              }`}>
               <Link className="group/collapsible flex gap-2 items-center w-full h-full group-data-[collapsible=icon]:w-fit" href="/home">
                 <Home size={28} className="group-data-[collapsible=icon]:h-[16px] group-data-[collapsible=icon]:w-[16px]" /> <span className="text-[18px] font-semibold">Home</span>
               </Link>
