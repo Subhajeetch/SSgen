@@ -27,7 +27,7 @@ export default function WithSidebarLayout({ children }) {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage>Home</BreadcrumbPage>
+                                    <BreadcrumbPage className="font-semibold">Home</BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
