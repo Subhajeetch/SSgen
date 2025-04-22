@@ -13,6 +13,7 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
+import Bc from "./bc.js";
 
 export default function WithSidebarLayout({ children }) {
     return (
@@ -27,7 +28,9 @@ export default function WithSidebarLayout({ children }) {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem>
-                                    <BreadcrumbPage className="font-semibold">Home</BreadcrumbPage>
+                                    <BreadcrumbPage className="font-semibold">
+                                        <Bc />
+                                    </BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
                         </Breadcrumb>
