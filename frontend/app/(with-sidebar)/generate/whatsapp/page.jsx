@@ -1,7 +1,9 @@
 'use client';
 import { useState, useRef } from 'react';
 import { downloadImageFromRef } from '@/utils/downloadImage.js';
-import { Pencil, Candy } from 'lucide-react'; // if not installed, run: npm install lucide-react
+import { Pencil, Candy, AppWindow, Calendar1 } from 'lucide-react';
+import { Switch } from "@/components/ui/switch"
+
 
 export default function Page() {
     const [messages, setMessages] = useState([]);
@@ -9,6 +11,10 @@ export default function Page() {
     const [sender, setSender] = useState('user');
     const [editingIndex, setEditingIndex] = useState(null);
     const [tempMessage, setTempMessage] = useState(null);
+
+    const [showFriendNameInput, setShowFriendNameInput] = useState(true);
+    const [showDate, setShowDate] = useState(false);
+
     const previewRef = useRef(null);
     const FILE_NAME = 'whatsapp-screenshot.png';
 
@@ -69,6 +75,49 @@ export default function Page() {
             {/* Preview */}
             <div className="w-full flex justify-center items-center">
                 <div className='bg-sidebar p-2 rounded-md flex flex-col'>
+
+                    <div className=' flex flex-col gap-2 mb-2'>
+                        <div className={`bg-muted p-1 px-2 rounded-sm flex flex-col gap-2 transition-all duration-300 overflow-hidden ${showFriendNameInput ? "h-[78px]" : "h-[34px]"}`}>
+                            <div className="flex justify-between items-center">
+                                <span className="font-semibold flex gap-1.5 items-center">
+                                    <AppWindow size={20} /> Friend Name
+                                </span>
+                                <Switch
+                                    id="airplane-mode"
+                                    checked={showFriendNameInput}
+                                    onCheckedChange={() => setShowFriendNameInput((prev) => !prev)}
+                                />
+                            </div>
+
+                            {showFriendNameInput && (
+                                <div className="flex gap-2 items-center">
+                                    <input
+                                        type="text"
+                                        className="bg-sidebar outline-0 rounded px-2 py-1 w-[154px]"
+                                        placeholder="...?"
+                                    />
+                                    <button className="bg-green-700 px-3 py-1 rounded font-bold">
+                                        Save
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="bg-muted p-1 px-2 rounded-sm flex flex-col gap-2 transition-all duration-300 overflow-hidden">
+                            <div className="flex justify-between items-center">
+                                <span className="font-semibold flex gap-1.5 items-center">
+                                    <Calendar1 size={20} /> Show Date
+                                </span>
+                                <Switch
+                                    id="airplane-mode"
+                                    checked={showDate}
+                                    onCheckedChange={() => setShowDate((prev) => !prev)}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+
                     <div className='flex gap-2 pb-2 items-center'>
                         <Candy size={22} />
                         <p className='font-semibold'>Preview</p>
@@ -80,7 +129,7 @@ export default function Page() {
                     </div>
                     <div
                         ref={previewRef}
-                        className="aspect-[9/16] h-[430px] w-full max-w-[250px] rounded relative overflow-hidden"
+                        className="aspect-[9/16] w-[320px] rounded relative overflow-hidden"
                     >
                         <div className="absolute top-0 left-0 right-0 h-[60px] bg-[#0000]" />
                         <img src="/whatsapp-bg.png" className="w-full object-cover" alt="Background" />
@@ -106,8 +155,10 @@ export default function Page() {
                         </div>
                     </div>
 
-                    <div>
-                        heyy
+                    <div className="flex flex-col gap-2 mt-2">
+                        <button className='w-full bg-green-700 px-3 py-1 rounded font-bold'>
+                            Generate Image
+                        </button>
                     </div>
                 </div>
             </div>
