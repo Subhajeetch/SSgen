@@ -1,8 +1,26 @@
 'use client';
 import { useState, useRef } from 'react';
 import { downloadImageFromRef } from '@/utils/downloadImage.js';
-import { Pencil, Candy, AppWindow, Calendar1 } from 'lucide-react';
+import { Pencil, Candy, AppWindow, Calendar1, User, MailQuestion, Trash } from 'lucide-react';
 import { Switch } from "@/components/ui/switch"
+
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DialogClose,
+} from "@/components/ui/dialog"
+
 
 
 export default function Page() {
@@ -11,6 +29,8 @@ export default function Page() {
     const [sender, setSender] = useState('user');
     const [editingIndex, setEditingIndex] = useState(null);
     const [tempMessage, setTempMessage] = useState(null);
+    const [messageType, setMessageType] = useState('text');
+    const [imageInput, setImageInput] = useState(""); // Stores the preview URL
 
     const [showFriendNameInput, setShowFriendNameInput] = useState(true);
     const [showDate, setShowDate] = useState(false);
@@ -19,24 +39,29 @@ export default function Page() {
     const FILE_NAME = 'whatsapp-screenshot.png';
 
     const addMessage = () => {
-        if (input.trim() === '') return;
+        if (messageType === "text" && input.trim() === "") return;
+        if (messageType === "image" && !imageInput) return;
+        if (messageType === "text-image" && input.trim() === "" && !imageInput) return;
+
         const newMessage = {
-            messageText: input,
-            messageType: 'text',
+            messageText: messageType === "text" || messageType === "text-image" ? input : undefined,
+            messageType: messageType,
             sender: sender,
-            date: new Date().toISOString().split('T')[0],
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            date: new Date().toISOString().split("T")[0],
+            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
             isRead: true,
             isDelivered: true,
             isSent: true,
             isRepyedMessage: false,
             isForwardedMessage: false,
             replyedMessage: null,
-            isImageAttached: false,
-            imageUrl: null,
+            isImageAttached: messageType === "image" || messageType === "text-image",
+            imageUrl: messageType === "image" || messageType === "text-image" ? imageInput : null,
         };
+
         setMessages([...messages, newMessage]);
-        setInput('');
+        setInput("");
+        setImageInput("");
     };
 
     const handleDownload = () => {
@@ -46,6 +71,11 @@ export default function Page() {
     const openEditor = (index) => {
         setEditingIndex(index);
         setTempMessage({ ...messages[index] }); // Copy message to temp
+    };
+
+    const deleteMessage = (index) => {
+        const updatedMessages = messages.filter((_, i) => i !== index);
+        setMessages(updatedMessages);
     };
 
     const handleTempChange = (key, value) => {
@@ -70,10 +100,56 @@ export default function Page() {
         return JSON.stringify(tempMessage) !== JSON.stringify(messages[editingIndex]);
     };
 
+    const handleImageSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setImageInput(reader.result); // Set the preview URL
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleImageDrop = (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                setImageInput(reader.result); // Set the preview URL
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleEditorImageSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                handleTempChange('imageUrl', reader.result); // Update the tempMessage with the preview URL
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleEditorImageDrop = (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                handleTempChange('imageUrl', reader.result); // Update the tempMessage with the preview URL
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     return (
-        <div className="flex flex-col lg:flex-row-reverse gap-4 p-4">
+        <div className="flex flex-col lg:flex-row-reverse gap-4 p-4 max-w-[1200px] mx-auto">
             {/* Preview */}
-            <div className="w-full flex justify-center items-center">
+            <div className="w-full flex justify-center items-center lg:flex-1">
                 <div className='bg-sidebar p-2 rounded-md flex flex-col'>
 
                     <div className=' flex flex-col gap-2 mb-2'>
@@ -93,7 +169,7 @@ export default function Page() {
                                 <div className="flex gap-2 items-center">
                                     <input
                                         type="text"
-                                        className="bg-sidebar outline-0 rounded px-2 py-1 w-[154px]"
+                                        className="bg-sidebar outline-0 rounded px-2 py-1 w-[216px]"
                                         placeholder="...?"
                                     />
                                     <button className="bg-green-700 px-3 py-1 rounded font-bold">
@@ -129,7 +205,7 @@ export default function Page() {
                     </div>
                     <div
                         ref={previewRef}
-                        className="aspect-[9/16] w-[320px] rounded relative overflow-hidden"
+                        className="aspect-[9/16] w-[300px] rounded relative overflow-hidden"
                     >
                         <div className="absolute top-0 left-0 right-0 h-[60px] bg-[#0000]" />
                         <img src="/whatsapp-bg.png" className="w-full object-cover" alt="Background" />
@@ -156,7 +232,7 @@ export default function Page() {
                     </div>
 
                     <div className="flex flex-col gap-2 mt-2">
-                        <button className='w-full bg-green-700 px-3 py-1 rounded font-bold'>
+                        <button onClick={handleDownload} className='w-full bg-green-700 px-3 py-1 rounded font-bold'>
                             Generate Image
                         </button>
                     </div>
@@ -164,22 +240,83 @@ export default function Page() {
             </div>
 
             {/* Editor */}
-            <div className="bg-gray-700 rounded shadow-md p-4 w-full lg:w-[400px] flex flex-col gap-4 overflow-y-auto max-h-[90vh]">
+            <div className="md:p-4 w-full flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                    <textarea
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        placeholder="Type your message..."
-                        className="p-2 border rounded resize-none"
-                    />
-                    <select
-                        value={sender}
-                        onChange={(e) => setSender(e.target.value)}
-                        className="border rounded p-2"
-                    >
-                        <option value="user">User</option>
-                        <option value="bot">Friend</option>
-                    </select>
+                    <div className='flex gap-2 items-center'>
+                        <label className='font-bold flex gap-2 items-center'>
+                            <User /> Send as
+                        </label>
+
+                        <Select defaultValue="user" onValueChange={setSender}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="sender..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="user">Me</SelectItem>
+                                <SelectItem value="bot">Friend</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                    </div>
+
+                    <div className='flex gap-2 items-center'>
+                        <label className='font-bold flex gap-2 items-center'>
+                            <MailQuestion /> Message Type
+                        </label>
+
+                        <Select defaultValue="text" onValueChange={setMessageType}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="text..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="text">Text Only</SelectItem>
+                                <SelectItem value="image">Image Only</SelectItem>
+                                <SelectItem value="text-image">Text + Image</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                    </div>
+
+                    {messageType === "text" || messageType === "text-image" ? (
+                        <textarea
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder="Type your message..."
+                            className="p-2 border rounded resize-none"
+                        />
+                    ) : null}
+
+                    {messageType === "image" || messageType === "text-image" ? (
+                        <div
+                            className="border-dashed border-2 border-gray-400 rounded p-4 flex flex-col items-center justify-center"
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={(e) => handleImageDrop(e)}
+                        >
+                            {imageInput ? (
+                                <img
+                                    src={imageInput}
+                                    alt="Preview"
+                                    className="max-w-full max-h-40 rounded"
+                                />
+                            ) : (
+                                <p className="text-gray-500">Drag and drop an image here, or click to select</p>
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleImageSelect(e)}
+                                className="hidden"
+                                id="image-upload"
+                            />
+                            <label
+                                htmlFor="image-upload"
+                                className="mt-2 bg-blue-500 text-white px-3 py-1 rounded cursor-pointer"
+                            >
+                                Select Image
+                            </label>
+                        </div>
+                    ) : null}
+
                     <button
                         onClick={addMessage}
                         className="bg-green-500 text-white rounded py-1"
@@ -188,12 +325,12 @@ export default function Page() {
                     </button>
                 </div>
 
-                <hr className="my-2 border-gray-500" />
+                <hr className="my-2 border-muted" />
 
                 {/* Messages Editor */}
                 <div className="flex flex-col gap-4">
                     {messages.map((msg, i) => (
-                        <div key={i} className="bg-gray-600 p-3 rounded shadow-md flex flex-col gap-2 relative">
+                        <div key={i} className="bg-sidebar p-3 rounded shadow-md flex flex-col gap-2 relative">
                             {editingIndex === i ? (
                                 <>
                                     <textarea
@@ -203,14 +340,21 @@ export default function Page() {
                                         className="p-2 border rounded resize-none"
                                     />
                                     <div className="flex gap-2">
-                                        <select
-                                            value={tempMessage.sender}
-                                            onChange={(e) => handleTempChange('sender', e.target.value)}
-                                            className="border rounded p-2 flex-1"
+
+
+                                        <Select defaultValue={tempMessage.sender} onValueChange={(value) => handleTempChange('sender', value)}
+
                                         >
-                                            <option value="user">User</option>
-                                            <option value="bot">Friend</option>
-                                        </select>
+                                            <SelectTrigger className="w-[180px]">
+                                                <SelectValue placeholder="sender..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="user">Me</SelectItem>
+                                                <SelectItem value="bot">Friend</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+
+
                                         <input
                                             type="time"
                                             value={tempMessage.time}
@@ -248,13 +392,34 @@ export default function Page() {
                                             Attach Image
                                         </label>
                                         {tempMessage.isImageAttached && (
-                                            <input
-                                                type="text"
-                                                value={tempMessage.imageUrl || ''}
-                                                onChange={(e) => handleTempChange('imageUrl', e.target.value)}
-                                                placeholder="Image URL"
-                                                className="p-2 border rounded"
-                                            />
+                                            <div
+                                                className="border-dashed border-2 border-gray-400 rounded p-4 flex flex-col items-center justify-center"
+                                                onDragOver={(e) => e.preventDefault()}
+                                                onDrop={(e) => handleEditorImageDrop(e)}
+                                            >
+                                                {tempMessage.imageUrl ? (
+                                                    <img
+                                                        src={tempMessage.imageUrl}
+                                                        alt="Attached"
+                                                        className="max-w-full max-h-40 rounded"
+                                                    />
+                                                ) : (
+                                                    <p className="text-gray-500">Drag and drop an image here, or click to select</p>
+                                                )}
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={(e) => handleEditorImageSelect(e)}
+                                                    className="hidden"
+                                                    id={`image-upload-${editingIndex}`}
+                                                />
+                                                <label
+                                                    htmlFor={`image-upload-${editingIndex}`}
+                                                    className="mt-2 bg-blue-500 text-white px-3 py-1 rounded cursor-pointer"
+                                                >
+                                                    Select Image
+                                                </label>
+                                            </div>
                                         )}
                                     </div>
 
@@ -278,28 +443,103 @@ export default function Page() {
                             ) : (
                                 <>
                                     {msg.isImageAttached ? (
-                                        <img src={msg.imageUrl} alt="Attached" className="max-h-20 rounded" />
+                                        <div className='flex flex-col gap-2'>
+                                            <label>
+                                                {msg.sender === "user" ? (
+                                                    <span>From <span className='font-bold underline'>You</span></span>
+                                                ) : (
+                                                    <span>From <span className='font-bold underline'>Friend</span></span>
+                                                )}
+                                            </label>
+
+                                            <p className='mt-0.5 ml-4 line-clamp-2'>
+                                                {msg.messageText}
+                                            </p>
+                                            <img src={msg.imageUrl} alt="Attached" className="max-w-40 rounded" />
+                                        </div>
+
                                     ) : (
-                                        <div className="line-clamp-2">{msg.messageText}</div>
+                                        <div className="flex flex-col gap-2"> <label>
+                                            {msg.sender === "user" ? (
+                                                <span>From <span className='font-bold underline'>You</span></span>
+                                            ) : (
+                                                <span>From <span className='font-bold underline'>Friend</span></span>
+                                            )}
+                                        </label>
+
+                                            <p className='mt-0.5 ml-4 line-clamp-2'>
+                                                {msg.messageText}
+                                            </p></div>
                                     )}
-                                    <button
-                                        onClick={() => openEditor(i)}
-                                        className="absolute top-2 right-2 bg-gray-500 hover:bg-gray-400 p-1 rounded"
-                                    >
-                                        <Pencil size={16} />
-                                    </button>
+                                    <div className="absolute top-2 right-2 flex gap-2">
+                                        <button
+                                            onClick={() => openEditor(i)}
+                                            className="bg-muted p-1 rounded"
+                                        >
+                                            <Pencil size={16} />
+                                        </button>
+                                        <Dialog>
+                                            <DialogTrigger className="bg-muted p-1 rounded"><Trash size={16} /></DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>You are deleting this message!</DialogTitle>
+                                                    <DialogDescription>
+                                                    </DialogDescription>
+                                                </DialogHeader>
+
+                                                {msg.isImageAttached ? (
+                                                    <div className='flex flex-col gap-2 bg-sidebar px-2 pb-2 rounded-md'>
+                                                        <label>
+                                                            {msg.sender === "user" ? (
+                                                                <span>From <span className='font-bold underline'>You</span></span>
+                                                            ) : (
+                                                                <span>From <span className='font-bold underline'>Friend</span></span>
+                                                            )}
+                                                        </label>
+
+                                                        <p className='mt-0.5 ml-4 line-clamp-2'>
+                                                            {msg.messageText}
+                                                        </p>
+                                                        <img src={msg.imageUrl} alt="Attached" className="max-w-40 rounded" />
+                                                    </div>
+
+                                                ) : (
+                                                    <div className="flex flex-col gap-2 bg-sidebar px-2 pb-2 rounded-md"> <label>
+                                                        {msg.sender === "user" ? (
+                                                            <span>From <span className='font-bold underline'>You</span></span>
+                                                        ) : (
+                                                            <span>From <span className='font-bold underline'>Friend</span></span>
+                                                        )}
+                                                    </label>
+
+                                                        <p className='mt-0.5 ml-4 line-clamp-2'>
+                                                            {msg.messageText}
+                                                        </p></div>
+                                                )}
+
+                                                <div className="flex justify-end gap-2 mt-4">
+                                                    <button
+                                                        onClick={() => deleteMessage(i)}
+                                                        className="bg-muted hover:bg-red-500 rounded py-1 px-4"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                    <DialogClose asChild>
+                                                        <button
+                                                            className="outline-1 outline-muted hover:bg-muted rounded py-1 px-4"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </DialogClose>
+                                                </div>
+                                            </DialogContent>
+                                        </Dialog>
+                                    </div>
                                 </>
                             )}
                         </div>
                     ))}
                 </div>
-
-                <button
-                    onClick={handleDownload}
-                    className="bg-blue-500 text-white rounded py-2 mt-4"
-                >
-                    Generate Image
-                </button>
             </div>
         </div>
     );
