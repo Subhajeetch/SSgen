@@ -1,7 +1,7 @@
 'use client';
 import { useState, useRef } from 'react';
 import { downloadImageFromRef } from '@/utils/downloadImage.js';
-import { Pencil, Candy, AppWindow, Calendar1, User, MailQuestion, Trash } from 'lucide-react';
+import { Pencil, Candy, AppWindow, Calendar1, User, MailQuestion, Trash, ArrowLeft } from 'lucide-react';
 import { Switch } from "@/components/ui/switch"
 
 import {
@@ -33,6 +33,8 @@ export default function Page() {
     const [imageInput, setImageInput] = useState(""); // Stores the preview URL
 
     const [showFriendNameInput, setShowFriendNameInput] = useState(true);
+    const [friendName, setFriendName] = useState('...?');
+    const [liveFriendName, setLiveFriendName] = useState("hmm");
     const [showDate, setShowDate] = useState(false);
 
     const previewRef = useRef(null);
@@ -171,8 +173,12 @@ export default function Page() {
                                         type="text"
                                         className="bg-sidebar outline-0 rounded px-2 py-1 w-[216px]"
                                         placeholder="...?"
+                                        onChange={(e) => { setLiveFriendName(e.target.value) }}
+                                        value={liveFriendName}
                                     />
-                                    <button className="bg-green-700 px-3 py-1 rounded font-bold">
+                                    <button
+                                        onClick={() => { setFriendName(liveFriendName) }}
+                                        className="bg-green-700 px-3 py-1 rounded font-bold">
                                         Save
                                     </button>
                                 </div>
@@ -203,31 +209,53 @@ export default function Page() {
                             <div className='h-3 w-3 rounded-full bg-[#90EE90]'></div>
                         </div>
                     </div>
+
+                    {/* Preview starts from here */}
                     <div
                         ref={previewRef}
                         className="aspect-[9/16] w-[300px] rounded relative overflow-hidden"
                     >
                         <div className="absolute top-0 left-0 right-0 h-[60px] bg-[#0000]" />
                         <img src="/whatsapp-bg.png" className="w-full object-cover" alt="Background" />
-                        <div className="flex flex-col gap-1 overflow-y-auto absolute top-0 left-0 right-0 bottom-0 p-2">
-                            {messages.map((msg, i) => (
-                                <div
-                                    key={i}
-                                    className={`relative px-3 py-1 rounded-lg max-w-[80%] text-sm ${msg.sender === 'user'
-                                        ? 'self-end bg-green-500 text-white'
-                                        : 'self-start bg-white text-black border border-gray-200'
-                                        }`}
-                                >
-                                    {msg.isImageAttached && msg.imageUrl ? (
-                                        <img src={msg.imageUrl} alt="Attached" className="max-w-full rounded" />
-                                    ) : (
-                                        msg.messageText
-                                    )}
-                                    <div className="text-[10px] mt-1 opacity-70 text-right">
-                                        {msg.time}
+                        <div className="flex flex-col gap-1 overflow-y-auto absolute top-0 left-0 right-0 bottom-0">
+
+                            {showFriendNameInput && (
+                                <div className='h-11 bg-white flex gap-2 px-1.5'>
+                                    {/* profile picture */}
+                                    <div className='flex gap-1.5 items-center'>
+                                        <ArrowLeft className='text-black' size={22} />
+                                        <img src="/no-pfp-pfp.jpg" alt="Profile Picture" className='h-8 w-8 rounded-full' />
+                                    </div>
+
+                                    <div className='flex-1 flex text-black items-center font-semibold'>
+                                        <p className='line-clamp-1'>{friendName}</p>
+                                    </div>
+                                    <div className='flex'>
+
                                     </div>
                                 </div>
-                            ))}
+                            )}
+
+                            <div className='flex-1 flex flex-col gap-1.5 p-2 overflow-y-auto'>
+                                {messages.map((msg, i) => (
+                                    <div
+                                        key={i}
+                                        className={`relative px-3 py-1 rounded-lg max-w-[80%] text-sm ${msg.sender === 'user'
+                                            ? 'self-end bg-green-500 text-white'
+                                            : 'self-start bg-white text-black border border-gray-200'
+                                            }`}
+                                    >
+                                        {msg.isImageAttached && msg.imageUrl ? (
+                                            <img src={msg.imageUrl} alt="Attached" className="max-w-full rounded" />
+                                        ) : (
+                                            msg.messageText
+                                        )}
+                                        <div className="text-[10px] mt-1 opacity-70 text-right">
+                                            {msg.time}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
 

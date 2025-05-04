@@ -1,5 +1,7 @@
 "use client";
 
+// this file is for the breadcrumbs in the sidebar
+
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
