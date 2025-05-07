@@ -4,6 +4,9 @@ import { downloadImageFromRef } from '@/utils/downloadImage.js';
 import { Pencil, Candy, AppWindow, Calendar1, User, MailQuestion, Trash, ArrowLeft } from 'lucide-react';
 import { Switch } from "@/components/ui/switch"
 
+// custom icons
+import { MoreSvg, CallSvg, VideoCallSvg } from '@/sections/uni/icons';
+
 import {
     Select,
     SelectContent,
@@ -34,7 +37,7 @@ export default function Page() {
 
     const [showFriendNameInput, setShowFriendNameInput] = useState(true);
     const [friendName, setFriendName] = useState('...?');
-    const [liveFriendName, setLiveFriendName] = useState("hmm");
+    const [liveFriendName, setLiveFriendName] = useState("");
     const [showDate, setShowDate] = useState(false);
 
     const previewRef = useRef(null);
@@ -228,9 +231,12 @@ export default function Page() {
                                     </div>
 
                                     <div className='flex-1 flex text-black items-center font-semibold'>
-                                        <p className='line-clamp-1'>{friendName}</p>
+                                        <p className=' w-[120px] truncate'>{friendName}</p>
                                     </div>
-                                    <div className='flex'>
+                                    <div className='flex items-center gap-2'>
+                                        <VideoCallSvg className='text-black mr-1' size={22} />
+                                        <CallSvg className='text-black' size={21} />
+                                        <MoreSvg className='text-black' size={22} />
 
                                     </div>
                                 </div>
@@ -240,17 +246,20 @@ export default function Page() {
                                 {messages.map((msg, i) => (
                                     <div
                                         key={i}
-                                        className={`relative px-3 py-1 rounded-lg max-w-[80%] text-sm ${msg.sender === 'user'
+                                        className={`relative p-1 flex flex-col rounded-lg max-w-[80%] text-sm ${msg.sender === 'user'
                                             ? 'self-end bg-green-500 text-white'
                                             : 'self-start bg-white text-black border border-gray-200'
                                             }`}
                                     >
                                         {msg.isImageAttached && msg.imageUrl ? (
-                                            <img src={msg.imageUrl} alt="Attached" className="max-w-full rounded" />
+                                            <>
+                                                <img src={msg.imageUrl} alt="Attached" className="max-w-full rounded" />
+                                                <p>{msg.messageText}</p>
+                                            </>
                                         ) : (
                                             msg.messageText
                                         )}
-                                        <div className="text-[10px] mt-1 opacity-70 text-right">
+                                        <div className="text-[10px] opacity-70 text-right bg-amber-700">
                                             {msg.time}
                                         </div>
                                     </div>
