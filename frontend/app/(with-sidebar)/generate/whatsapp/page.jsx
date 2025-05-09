@@ -246,24 +246,37 @@ export default function Page() {
                                 {messages.map((msg, i) => (
                                     <div
                                         key={i}
-                                        className={`relative p-1 flex flex-col rounded-lg max-w-[80%] text-sm ${msg.sender === 'user'
-                                            ? 'self-end bg-green-500 text-white'
-                                            : 'self-start bg-white text-black border border-gray-200'
-                                            }`}
+                                        className={`relative self-${msg.sender === 'user' ? 'end' : 'start'} max-w-[80%] text-sm`}
                                     >
-                                        {msg.isImageAttached && msg.imageUrl ? (
-                                            <>
-                                                <img src={msg.imageUrl} alt="Attached" className="max-w-full rounded" />
-                                                <p>{msg.messageText}</p>
-                                            </>
-                                        ) : (
-                                            msg.messageText
-                                        )}
-                                        <div className="text-[10px] opacity-70 text-right bg-amber-700">
-                                            {msg.time}
+
+
+                                        <div class={`absolute rounded-t-sm top-0 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[14px] border-l-transparent border-r-transparent
+                                            ${msg.sender === 'user' ? 'border-t-green-500 right-[-7px]' : 'border-t-white left-[-7px]'}
+                                            `}></div>
+
+
+                                        <div
+                                            className={`flex flex-col bg-${msg.sender === 'user' ? 'green-500 text-white' : 'white text-black'
+                                                } rounded-md p-1`}
+                                        >
+                                            {msg.isImageAttached && msg.imageUrl ? (
+                                                <>
+                                                    <img src={msg.imageUrl} alt="Attached" className="max-w-full rounded mb-1" />
+                                                    <div className="flex justify-between gap-2 items-end">
+                                                        <p className="break-words">{msg.messageText}</p>
+                                                        <span className="text-[9px] opacity-70 whitespace-nowrap">{msg.time}</span>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <div className="flex justify-between gap-2 items-end">
+                                                    <p className="break-words">{msg.messageText}</p>
+                                                    <span className="text-[9px] opacity-70 whitespace-nowrap">{msg.time}</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
+
                             </div>
                         </div>
                     </div>
