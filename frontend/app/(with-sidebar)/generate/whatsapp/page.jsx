@@ -1,11 +1,26 @@
 'use client';
 import { useState, useRef } from 'react';
 import { downloadImageFromRef } from '@/utils/downloadImage.js';
-import { Pencil, Candy, AppWindow, Calendar1, User, MailQuestion, Trash, ArrowLeft } from 'lucide-react';
+import {
+    Pencil,
+    Candy,
+    AppWindow,
+    Calendar1,
+    User,
+    MailQuestion,
+    Trash,
+    ArrowLeft,
+    Clock
+} from 'lucide-react';
 import { Switch } from "@/components/ui/switch"
 
 // custom icons
-import { MoreSvg, CallSvg, VideoCallSvg } from '@/sections/uni/icons';
+import {
+    MoreSvg,
+    CallSvg,
+    VideoCallSvg,
+    DoubleTickIcon
+} from '@/sections/uni/icons';
 
 import {
     Select,
@@ -88,12 +103,14 @@ export default function Page() {
     };
 
     const saveChanges = () => {
+        if (!tempMessage) return;
         const updatedMessages = [...messages];
-        updatedMessages[editingIndex] = tempMessage;
+        updatedMessages[editingIndex] = { ...tempMessage }; // Make sure this is a fresh clone
         setMessages(updatedMessages);
         setEditingIndex(null);
         setTempMessage(null);
     };
+
 
     const cancelChanges = () => {
         setEditingIndex(null);
@@ -102,8 +119,14 @@ export default function Page() {
 
     const hasChanges = () => {
         if (!tempMessage) return false;
-        return JSON.stringify(tempMessage) !== JSON.stringify(messages[editingIndex]);
+
+        const original = messages[editingIndex];
+        for (let key in tempMessage) {
+            if (tempMessage[key] !== original[key]) return true;
+        }
+        return false;
     };
+
 
     const handleImageSelect = (e) => {
         const file = e.target.files[0];
@@ -203,7 +226,8 @@ export default function Page() {
                     </div>
 
 
-                    <div className='flex gap-2 pb-2 items-center'>
+                    <div className='flex gap-2 pb-2 items-center'
+                    >
                         <Candy size={22} />
                         <p className='font-semibold'>Preview</p>
                         <div className='flex-1 flex gap-1 justify-end pr-1.5'>
@@ -230,7 +254,7 @@ export default function Page() {
                                         <img src="/no-pfp-pfp.jpg" alt="Profile Picture" className='h-8 w-8 rounded-full' />
                                     </div>
 
-                                    <div className='flex-1 flex text-black items-center font-semibold'>
+                                    <div className='flex-1 flex text-black items-center'>
                                         <p className=' w-[120px] truncate'>{friendName}</p>
                                     </div>
                                     <div className='flex items-center gap-2'>
@@ -246,31 +270,52 @@ export default function Page() {
                                 {messages.map((msg, i) => (
                                     <div
                                         key={i}
-                                        className={`relative self-${msg.sender === 'user' ? 'end' : 'start'} max-w-[80%] text-sm`}
+                                        className={`relative ${msg.sender === 'user' ? 'self-end' : 'self-start'} max-w-[80%] text-sm`}
                                     >
 
 
-                                        <div class={`absolute rounded-t-sm top-0 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[14px] border-l-transparent border-r-transparent
-                                            ${msg.sender === 'user' ? 'border-t-green-500 right-[-7px]' : 'border-t-white left-[-7px]'}
+                                        <div className={`absolute rounded-t-sm top-0 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[14px] border-l-transparent border-r-transparent
+                                            ${msg.sender === 'user' ? 'border-t-[#d8fdd2]  right-[-7px]' : 'border-t-white left-[-7px]'}
                                             `}></div>
 
 
                                         <div
-                                            className={`flex flex-col bg-${msg.sender === 'user' ? 'green-500 text-white' : 'white text-black'
-                                                } rounded-md p-1`}
+                                            className={`flex flex-col ${msg.sender === 'user' ? 'bg-[#d8fdd2]  text-black' : 'bg-white text-black'
+                                                } rounded-md p-1 px-2`}
                                         >
                                             {msg.isImageAttached && msg.imageUrl ? (
                                                 <>
                                                     <img src={msg.imageUrl} alt="Attached" className="max-w-full rounded mb-1" />
                                                     <div className="flex justify-between gap-2 items-end">
                                                         <p className="break-words">{msg.messageText}</p>
-                                                        <span className="text-[9px] opacity-70 whitespace-nowrap">{msg.time}</span>
+                                                        <span className="text-[9px] opacity-70 whitespace-nowrap flex gap-1">{msg.time}
+                                                            {msg.isDelivered && msg.isSent ? (
+                                                                msg.isRead ? (
+                                                                    <DoubleTickIcon size={12} className='text-blue-500' />
+                                                                ) : (
+                                                                    <DoubleTickIcon size={12} className='text-gray-500' />
+                                                                )
+                                                            ) : (
+                                                                <Clock size={12} className='text-gray-500' />
+                                                            )}
+
+
+                                                        </span>
                                                     </div>
                                                 </>
                                             ) : (
                                                 <div className="flex justify-between gap-2 items-end">
                                                     <p className="break-words">{msg.messageText}</p>
-                                                    <span className="text-[9px] opacity-70 whitespace-nowrap">{msg.time}</span>
+                                                    <span className="text-[9px] opacity-70 whitespace-nowrap flex gap-1">{msg.time} {msg.isDelivered && msg.isSent ? (
+                                                        msg.isRead ? (
+                                                            <DoubleTickIcon size={12} className='text-blue-500' />
+                                                        ) : (
+                                                            <DoubleTickIcon size={12} className='text-gray-500' />
+                                                        )
+                                                    ) : (
+                                                        <Clock size={12} className='text-gray-500' />
+                                                    )}
+                                                    </span>
                                                 </div>
                                             )}
                                         </div>
