@@ -56,6 +56,7 @@ export default function Page() {
     const [showDate, setShowDate] = useState(false);
 
     const [replyToMessage, setReplyToMessage] = useState(false);
+    const [replyMessage, setReplyMessage] = useState(null);
 
     const previewRef = useRef(null);
     const FILE_NAME = 'whatsapp-screenshot.png';
@@ -76,7 +77,7 @@ export default function Page() {
             isSent: true,
             isRepyedMessage: false,
             isForwardedMessage: false,
-            replyedMessage: null,
+            replyedMessage: replyMessage,
             isImageAttached: messageType === "image" || messageType === "text-image",
             imageUrl: messageType === "image" || messageType === "text-image" ? imageInput : null,
         };
@@ -84,6 +85,7 @@ export default function Page() {
         setMessages([...messages, newMessage]);
         setInput("");
         setImageInput("");
+        setReplyMessage(null);
     };
 
     const handleDownload = () => {
@@ -180,9 +182,9 @@ export default function Page() {
         if (!s) return;
 
         if (s === "user") {
-            return "You"
+            return "You:"
         } else {
-            return "Friend"
+            return "Friend:"
         }
     }
 
@@ -397,7 +399,7 @@ export default function Page() {
                         </div>
 
                         {showFriendNameInput && (
-                            <Select onValueChange={setMessageType}>
+                            <Select value={replyMessage} onValueChange={setReplyMessage}>
                                 <SelectTrigger className="w-[290px]">
                                     <SelectValue placeholder="Select reply message..." />
                                 </SelectTrigger>
