@@ -55,6 +55,8 @@ export default function Page() {
     const [liveFriendName, setLiveFriendName] = useState("");
     const [showDate, setShowDate] = useState(false);
 
+    const [replyToMessage, setReplyToMessage] = useState(false);
+
     const previewRef = useRef(null);
     const FILE_NAME = 'whatsapp-screenshot.png';
 
@@ -173,6 +175,16 @@ export default function Page() {
             reader.readAsDataURL(file);
         }
     };
+
+    const formateSender = (s) => {
+        if (!s) return;
+
+        if (s === "user") {
+            return "You"
+        } else {
+            return "Friend"
+        }
+    }
 
     return (
         <div className="flex flex-col lg:flex-row-reverse gap-4 p-4 max-w-[1200px] mx-auto">
@@ -308,7 +320,7 @@ export default function Page() {
                                                     <p className="break-words">{msg.messageText}</p>
                                                     <span className="text-[9px] opacity-70 whitespace-nowrap flex gap-1">{msg.time} {msg.isDelivered && msg.isSent ? (
                                                         msg.isRead ? (
-                                                            <DoubleTickIcon size={12} className='text-blue-500' />
+                                                            <DoubleTickIcon size={12} className='text-blue-500 font-bold' />
                                                         ) : (
                                                             <DoubleTickIcon size={12} className='text-gray-500' />
                                                         )
@@ -370,6 +382,49 @@ export default function Page() {
                             </SelectContent>
                         </Select>
 
+                    </div>
+
+                    <div className={`${!replyToMessage ? "border-b-1 border-muted" : ""} p-1 px-2 w-fit flex flex-col gap-2 transition-all duration-300 overflow-hidden ${replyToMessage ? "h-[78px]" : "h-[34px]"}`}>
+                        <div className="flex justify-between items-center">
+                            <span className="font-semibold flex gap-1.5 items-center">
+                                <AppWindow size={20} /> Reply To A Message
+                            </span>
+                            <Switch
+                                id="airplane-mode"
+                                checked={replyToMessage}
+                                onCheckedChange={() => setReplyToMessage((prev) => !prev)}
+                            />
+                        </div>
+
+                        {showFriendNameInput && (
+                            <Select onValueChange={setMessageType}>
+                                <SelectTrigger className="w-[290px]">
+                                    <SelectValue placeholder="Select reply message..." />
+                                </SelectTrigger>
+                                <SelectContent>
+
+                                    {messages.map((msg, i) => (
+                                        <SelectItem key={i} value={msg} className="flex flex-col items-start">
+                                            <span >From <span className='underline font-semibold'>{formateSender(msg.sender)}</span>
+                                            </span>
+
+                                            <div className='flex gap-2 items-center'>
+                                                <p className='truncate max-w-[124px]'>
+                                                    {msg.messageText}
+                                                </p>
+
+                                                {msg.imageUrl && (
+                                                    <img src={msg.imageUrl} alt="message image priview" className='max-h-6 max-w-6 rounded object-cover' />
+                                                )}
+                                            </div>
+
+                                        </SelectItem>
+                                    ))}
+
+                                </SelectContent>
+                            </Select>
+
+                        )}
                     </div>
 
                     {messageType === "text" || messageType === "text-image" ? (
