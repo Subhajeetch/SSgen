@@ -293,10 +293,36 @@ export default function Page() {
                                             `}></div>
 
 
+
+
                                         <div
                                             className={`flex flex-col ${msg.sender === 'user' ? 'bg-[#d8fdd2]  text-black' : 'bg-white text-black'
                                                 } rounded-md p-1 px-2`}
                                         >
+
+                                            {msg.replyedMessage && (
+
+                                                <div className='overflow-hidden rounded flex gap-1 bg-[#b9dfb2]'>
+                                                    <div className='h-auto w-1.5 bg-amber-700'></div>
+                                                    <div className='flex flex-col'>
+                                                        <p className='font-semibold'>
+                                                            {msg.replyedMessage.sender === "user" ? (
+                                                                <span>You</span>) : (
+                                                                <span>{friendName}</span>
+                                                            )}
+                                                        </p>
+                                                        <p className='line-clamp-2'>{msg.replyedMessage.messageText}</p>
+                                                    </div>
+
+                                                    {msg.replyedMessage.imageUrl && (
+                                                        <div className='ml-2'>
+                                                            <img src={msg.replyedMessage.imageUrl} alt="Attached" className="w-8 h-8 object-cover rounded" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+
                                             {msg.isImageAttached && msg.imageUrl ? (
                                                 <>
                                                     <img src={msg.imageUrl} alt="Attached" className="max-w-full rounded mb-1" />
